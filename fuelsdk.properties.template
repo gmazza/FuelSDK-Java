@@ -10,7 +10,5 @@ authEndpoint=https://########.auth.marketingcloudapis.com
 endpoint=https://########.rest.marketingcloudapis.com
 soapEndpoint=https://########.soap.marketingcloudapis.com/service.asmx
 useOAuth2Authentication=true
-# accountId is member identification code (MID), see here on how to determine:
-# https://trailhead.salesforce.com/en/content/learn/modules/marketing-cloud-setup/set-up-your-account
 accountId=<TARGET_ACCOUNT_ID>
-# scope=  (can leave blank for current tests)
+scope=<PERMISSION_LIST>
