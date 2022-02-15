@@ -1,4 +1,4 @@
-# For running tests via mvn clean test
+# For running tests via ./gradlew clean build test
 # (Note several tests in this fork marked @Ignore as they presently don't work.)
 # Copy this file into a new fuelsdk.properties in this folder, and place values based on your Marketing Cloud config.
 # Data confidential, don't check this information into a public repository! (fuelsdk.properties is in .gitignore)
