@@ -11,10 +11,12 @@ settings.xml
 
 # IntelliJ IDEA
 .idea/
+.gradle/
 *.iml
 *.iws
 
-# Maven
+# Maven/Gradle
+build/
 target/
 /bin/
 /nbproject/
