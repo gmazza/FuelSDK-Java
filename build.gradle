@@ -3,22 +3,20 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:latest.release'
     }
 }
 
 plugins {
-    id "pl.allegro.tech.build.axion-release" version "1.11.0"
+    id "pl.allegro.tech.build.axion-release" version "1.13.6"
+    id 'com.jfrog.artifactory' version '4.27.1'
+    id 'java'
+    id 'maven-publish'
     id "io.mateo.cxf-codegen" version "1.0.0"
     // JavaCC compiler for script in main/javacc folder
     // https://cs.lmu.edu/~ray/notes/javacc/
     // https://github.com/javacc/javaccPlugin
     id "ca.coglinc.javacc" version "2.4.0"
 }
-
-apply plugin: 'java'
-apply plugin: 'maven-publish'
-apply plugin: "com.jfrog.artifactory"
 
 scmVersion {
     useHighestVersion = true
@@ -77,8 +75,10 @@ dependencies {
 // https://github.com/ciscoo/cxf-codegen-gradle (see User Guide link in README)
 tasks.register("runWsdlToJava", io.mateo.cxf.codegen.wsdl2java.Wsdl2Java) {
     toolOptions {
-        wsdl.set(file("src/main/resources/etframework.wsdl"))
-        wsdlLocation.set("etframework.wsdl")
+        wsdl.set(file("src/main/resources/etframework20220219.wsdl"))
+        // below needed for defining the wsdlLocation in PartnerAPI.java
+        // otherwise nonportable reference to developer laptop would be used
+        wsdlLocation.set("etframework20220219.wsdl")
         bindingFiles.set([("src/main/resources/etframework-bindings.xml")])
         extraArgs.set(["-client", "-p", "com.exacttarget.fuelsdk.internal",
                        "-fe", "jaxws21",
