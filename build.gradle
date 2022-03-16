@@ -51,8 +51,8 @@ dependencies {
     implementation "org.apache.cxf.xjc-utils:cxf-xjc-runtime:3.3.1"
     implementation "com.google.code.gson:gson:2.9.0"
     implementation "org.apache.commons:commons-lang3:3.12.0"
-    implementation "org.apache.logging.log4j:log4j-core:2.17.1"
-    implementation "org.apache.logging.log4j:log4j-1.2-api:2.17.1"
+    implementation "org.apache.logging.log4j:log4j-core:$log4jVersion"
+    implementation "org.apache.logging.log4j:log4j-1.2-api:$log4jVersion"
 
     // Below deps in JDK 8 but not more recent
     implementation "javax.xml.ws:jaxws-api:2.3.1"

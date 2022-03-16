@@ -3,8 +3,8 @@ Salesforce Marketing Cloud Java SDK (gmazza Fork)
 
 This is a fork of Salesforce's Fuel-SDK 1.5.0 with some bonuses:
 
-* latest Log4J (2.17.1 as of this writing) to solve its recent security concerns
-* latest Apache CXF (3.5.0)
+* latest Log4J (2.17.2 as of this writing) to solve its recent security concerns
+* latest Apache CXF (3.5.1)
 * Salesforce WSDL from Feb. 2022 instead of the 2017 version in the main branch
 * Gradle instead of Maven, minimum JDK 11
 
