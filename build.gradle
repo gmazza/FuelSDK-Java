@@ -7,11 +7,11 @@ buildscript {
 }
 
 plugins {
-    id "pl.allegro.tech.build.axion-release" version "1.13.6"
+    id "pl.allegro.tech.build.axion-release" version "1.13.14"
+    id "io.mateo.cxf-codegen" version "1.0.0"
     id 'com.jfrog.artifactory' version '4.27.1'
     id 'java'
     id 'maven-publish'
-    id "io.mateo.cxf-codegen" version "1.0.0"
     // JavaCC compiler for script in main/javacc folder
     // https://cs.lmu.edu/~ray/notes/javacc/
     // https://github.com/javacc/javaccPlugin

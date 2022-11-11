@@ -112,14 +112,14 @@ public class ETSoapConnection {
             Integer cxfConnectTimeout = null;
             Integer cxfReceiveTimeout = null;
             try {
-                cxfConnectTimeout = new Integer(
+                cxfConnectTimeout = Integer.valueOf(
                         client.getConfiguration().get("cxfConnectTimeout"));
             } catch (NumberFormatException ex) {
                 // Ignore--this just means the value specified in
                 // the fuelsdk.properties file is not an integer.
             }
             try {
-                cxfReceiveTimeout = new Integer(
+                cxfReceiveTimeout = Integer.valueOf(
                         client.getConfiguration().get("cxfReceiveTimeout"));
             } catch (NumberFormatException ex) {
                 // Ignore--this just means the value specified in

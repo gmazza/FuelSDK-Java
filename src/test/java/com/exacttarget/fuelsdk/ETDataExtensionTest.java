@@ -66,7 +66,7 @@ public class ETDataExtensionTest {
 //        Assume.assumeNotNull(ETDataExtensionTest.class
 //                .getResource("/fuelsdk-test.properties"));
         client = new ETClient("fuelsdk.properties");
-        dataExtensionFolderId = new Integer(client.getConfiguration()
+        dataExtensionFolderId = Integer.valueOf(client.getConfiguration()
                 .get("dataExtensionFolderId"));
 //        System.out.println("folder="+dataExtensionFolderId);
     }

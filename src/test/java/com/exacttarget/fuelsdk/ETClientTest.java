@@ -231,7 +231,7 @@ public class ETClientTest {
         configuration.set("redirectURI", "redirectURI");
         configuration.set("authorizationCode", "authorizationCode");
 
-        JsonObject payload = client.createPayload(configuration);
+        JsonObject payload = client.createOAuth2Payload(configuration);
 
         assertEquals(configuration.get("clientId"), payload.get("client_id").getAsString());
         assertEquals(configuration.get("redirectURI"), payload.get("redirect_uri").getAsString());
@@ -247,7 +247,7 @@ public class ETClientTest {
         configuration.set("redirectURI", "redirectURI");
         configuration.set("authorizationCode", "authorizationCode");
 
-        JsonObject payload = client.createPayload(configuration);
+        JsonObject payload = client.createOAuth2Payload(configuration);
 
         assertNull(payload.get("client_secret"));
     }
@@ -260,7 +260,7 @@ public class ETClientTest {
         configuration.set("redirectURI", "redirectURI");
         configuration.set("authorizationCode", "authorizationCode");
 
-        JsonObject payload = client.createPayload(configuration);
+        JsonObject payload = client.createOAuth2Payload(configuration);
 
         assertEquals(configuration.get("clientId"), payload.get("client_id").getAsString());
         assertEquals(configuration.get("clientSecret"), payload.get("client_secret").getAsString());
@@ -275,7 +275,7 @@ public class ETClientTest {
 
         configuration.set("applicationType", "server");
 
-        JsonObject payload = client.createPayload(configuration);
+        JsonObject payload = client.createOAuth2Payload(configuration);
 
         assertEquals(configuration.get("clientId"), payload.get("client_id").getAsString());
         assertEquals(configuration.get("clientSecret"), payload.get("client_secret").getAsString());
@@ -286,7 +286,7 @@ public class ETClientTest {
     public void createPayload_shouldReturnPayloadWithServerAppAttributes_whenApplicationTypeIsNotPassedInConfig(){
         ETConfiguration configuration = client.getConfiguration();
 
-        JsonObject payload = client.createPayload(configuration);
+        JsonObject payload = client.createOAuth2Payload(configuration);
 
         assertEquals(configuration.get("clientId"), payload.get("client_id").getAsString());
         assertEquals(configuration.get("clientSecret"), payload.get("client_secret").getAsString());
@@ -299,7 +299,7 @@ public class ETClientTest {
 
         configuration.set("applicationType", "server");
 
-        JsonObject payload = client.createPayload(configuration);
+        JsonObject payload = client.createOAuth2Payload(configuration);
 
         assertNull(payload.get("redirect_uri"));
         assertNull(payload.get("code"));
@@ -312,7 +312,7 @@ public class ETClientTest {
 
         client.setRefreshToken("refreshToken");
 
-        JsonObject payload = client.createPayload(configuration);
+        JsonObject payload = client.createOAuth2Payload(configuration);
 
         assertEquals(client.getRefreshToken(), payload.get("refresh_token").getAsString());
         assertEquals("refresh_token", payload.get("grant_type").getAsString());

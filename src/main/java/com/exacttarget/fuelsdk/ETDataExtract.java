@@ -11,6 +11,8 @@ import com.exacttarget.fuelsdk.internal.ExtractRequest;
 import com.exacttarget.fuelsdk.internal.ExtractRequestMsg;
 import com.exacttarget.fuelsdk.internal.ExtractResponseMsg;
 import com.exacttarget.fuelsdk.internal.Soap;
+import org.apache.commons.lang3.StringUtils;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
@@ -175,7 +177,7 @@ public class ETDataExtract
     
     private void validateTrackingDataParams() throws ETSdkException
     {
-        if(this.getOutputFileName()==null || this.getOutputFileName().trim()=="")
+        if(StringUtils.isBlank(this.getOutputFileName()))
             throw new ETSdkException("Output file name can not be empty or null.");
         String ext = this.getOutputFileName().toLowerCase();
         if(!ext.endsWith(".zip"))

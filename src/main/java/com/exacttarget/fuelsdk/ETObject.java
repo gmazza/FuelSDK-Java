@@ -194,7 +194,7 @@ public abstract class ETObject {
             throw new ETSdkException("field \""
                     + name
                     + "\" does not exist in class "
-                    + type.getName());
+                    + (type != null ? type.getName() : null));
         }
 
         return field;

@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -48,6 +49,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -57,7 +59,7 @@ import org.apache.log4j.Logger;
  */
 
 public class ETClient {
-    private static Logger logger = Logger.getLogger(ETClient.class);
+    private static final Logger logger = Logger.getLogger(ETClient.class);
 
     private static final String DEFAULT_PROPERTIES_FILE_NAME =
             "fuelsdk.properties";
@@ -74,18 +76,18 @@ public class ETClient {
     private static final String DEFAULT_SOAP_ENDPOINT =
             "https://webservice.exacttarget.com/Service.asmx";
 
-    private ETConfiguration configuration = null;
+    private final ETConfiguration configuration;
 
-    private String clientId = null;
-    private String clientSecret = null;
+    private final String clientId;
+    private final String clientSecret;
 
-    private String endpoint = null;
-    private String authEndpoint = null;
-    private String soapEndpoint = null;
+    private String endpoint;
+    private String authEndpoint;
+    private String soapEndpoint;
 
     private Boolean autoHydrateObjects = true;
 
-    private Gson gson = null;
+    private final Gson gson;
 
     private ETRestConnection authConnection = null;
     private ETRestConnection restConnection = null;
@@ -108,12 +110,8 @@ public class ETClient {
     private long tokenExpirationTime = 0;
     private static long soapEndpointExpiration = 0;
     private static String fetchedSoapEndpoint = null;
-    private static final long cacheDurationInMillis = 1000 * 60 * 10; // 10 minutes
-    private boolean useOAuth2Authentication;
-
-    private String applicationType;
-    private String authorizationCode;
-    private String redirectURI;
+    private static final long cacheDurationInMillis = 1000L * 60 * 10; // 10 minutes
+    private final boolean useOAuth2Authentication;
 
     /**
      * Class constructor, Initializes a new instance of the class.
@@ -167,9 +165,9 @@ public class ETClient {
 
         useOAuth2Authentication = configuration.isTrue("useOAuth2Authentication");
 
-        applicationType = configuration.get("applicationType");
-        authorizationCode = configuration.get("authorizationCode");
-        redirectURI = configuration.get("redirectURI");
+        String applicationType = configuration.get("applicationType");
+        String authorizationCode = configuration.get("authorizationCode");
+        String redirectURI = configuration.get("redirectURI");
 
         if(isNullOrBlankOrEmpty(applicationType)){
             applicationType = "server";
@@ -237,8 +235,7 @@ public class ETClient {
                     ETRestConnection.Response response = restConnection.get(PATH_ENDPOINTS_SOAP);
                     if (response.getResponseCode() == 200) {
                         String responsePayload = response.getResponsePayload();
-                        JsonParser jsonParser = new JsonParser();
-                        JsonObject jsonObject = jsonParser.parse(responsePayload).getAsJsonObject();
+                        JsonObject jsonObject = JsonParser.parseString(responsePayload).getAsJsonObject();
                         soapEndpoint = jsonObject.get("url").getAsString();
                         fetchedSoapEndpoint = soapEndpoint;
                         soapEndpointExpiration = System.currentTimeMillis() + cacheDurationInMillis;
@@ -277,7 +274,7 @@ public class ETClient {
      * @return The LegacyToken
      */
     public String getLegacyToken() {
-        return accessToken;
+        return legacyToken;
     }
 
     /**
@@ -352,17 +349,21 @@ public class ETClient {
     private synchronized String requestOAuth2Token()
             throws ETSdkException
     {
-        JsonObject payload = createPayload(configuration);
+        JsonObject payload = createOAuth2Payload(configuration);
         ETRestConnection.Response response = authConnection.post(PATH_OAUTH2TOKEN, gson.toJson(payload));
 
         if (response.getResponseCode() != HttpURLConnection.HTTP_OK) {
-            throw new ETSdkException("error obtaining OAuth2 access token "
-                    + "("
-                    + response.getResponseCode()
-                    + " "
-                    + response.getResponseMessage()
-                    + ")");
+            String message = String.format("Marketing Cloud returning error during OAuth2 access token request (%s %s, payload size: %d)",
+                    response.getResponseCode(),
+                    response.getResponseMessage(),
+                    // probably no payload if error, to guard against sensitive data being exposed just logging length if present
+                    Optional.ofNullable(response.getResponsePayload()).map(String::length).orElse(0));
+
+            logger.warn(message);
+
+            throw new ETTokenRequestException(response.getResponseCode(), response.getResponseMessage());
         }
+
         JsonParser jsonParser = new JsonParser();
 
         String responsePayload = response.getResponsePayload();
@@ -373,7 +374,7 @@ public class ETClient {
         this.soapEndpoint = jsonObject.get("soap_instance_url").getAsString() + "service.asmx";
 
         this.expiresIn = jsonObject.get("expires_in").getAsInt();
-        tokenExpirationTime = System.currentTimeMillis() + (expiresIn * 1000);
+        tokenExpirationTime = System.currentTimeMillis() + (expiresIn * 1000L);
 
         if(jsonObject.has("refresh_token")){
             this.refreshToken = jsonObject.get("refresh_token").getAsString();
@@ -382,7 +383,7 @@ public class ETClient {
         return accessToken;
     }
 
-    JsonObject createPayload(ETConfiguration configuration) {
+    JsonObject createOAuth2Payload(ETConfiguration configuration) {
         JsonObject payload = new JsonObject();
 
         payload.addProperty("client_id", configuration.get("clientId"));
@@ -440,27 +441,32 @@ public class ETClient {
         // we have one:
         //
 
+        String accessType = ObjectUtils.defaultIfNull(configuration.get("accessType"), "online");
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("clientId", clientId);
         jsonObject.addProperty("clientSecret", clientSecret);
-        jsonObject.addProperty("accessType", (configuration.get("accessType") != null ? configuration.get("accessType") :"online"));
-        if (configuration.get("accessType") != null && configuration.get("accessType").equals("offline") && refreshToken != null){
+        jsonObject.addProperty("accessType", accessType);
+        if (configuration.get("accessType") != null && accessType.equals("offline") && refreshToken != null){
             jsonObject.addProperty("refreshToken", refreshToken);
         }
 
         String requestPayload = gson.toJson(jsonObject);
 
-        ETRestConnection.Response response = null;
+        ETRestConnection.Response response;
 
         response = authConnection.post(PATH_REQUESTTOKEN, requestPayload);
 
         if (response.getResponseCode() != HttpURLConnection.HTTP_OK) {
-            throw new ETSdkException("error obtaining access token "
-                    + "("
-                    + response.getResponseCode()
-                    + " "
-                    + response.getResponseMessage()
-                    + ")");
+            String message = String.format("Marketing Cloud returning error during access token request (%s %s, accessType: %s, payload size: %d)",
+                    response.getResponseCode(),
+                    response.getResponseMessage(),
+                    jsonObject.get("accessType"),
+                    // probably no payload if error, to guard against sensitive data being exposed just logging length if present
+                    Optional.ofNullable(response.getResponsePayload()).map(String::length).orElse(0));
+
+            logger.warn(message);
+
+            throw new ETTokenRequestException(response.getResponseCode(), response.getResponseMessage());
         }
 
         //
@@ -470,8 +476,7 @@ public class ETClient {
 
         String responsePayload = response.getResponsePayload();
 
-        JsonParser jsonParser = new JsonParser();
-        jsonObject = jsonParser.parse(responsePayload).getAsJsonObject();
+        jsonObject = JsonParser.parseString(responsePayload).getAsJsonObject();
         logger.debug("received token:");
         this.accessToken = jsonObject.get("accessToken").getAsString();
         logger.debug("  accessToken: " + this.accessToken);
@@ -494,7 +499,7 @@ public class ETClient {
         // we multiply expiresIn by 1000:
         //
 
-        tokenExpirationTime = System.currentTimeMillis() + (expiresIn * 1000);
+        tokenExpirationTime = System.currentTimeMillis() + (expiresIn * 1000L);
 
         logger.debug("access token expires at " + new Date(tokenExpirationTime));
 
@@ -544,7 +549,7 @@ public class ETClient {
     public <T extends ETApiObject> T instantiate(Class <T> type)
             throws ETSdkException
     {
-        T object = null;
+        T object;
         try {
             object = type.newInstance();
         } catch (Exception ex) {
@@ -624,7 +629,7 @@ public class ETClient {
             throw new ETSdkException("could not find retrieve method for type " + type);
         }
 
-        ETResponse<T> response = null;
+        ETResponse<T> response;
         try {
             // first argument of null means method is static
             response = (ETResponse<T>) retrieve.invoke(null,
@@ -1037,7 +1042,7 @@ public class ETClient {
             // new object and set the primary key accordingly:
             //
 
-            T object = null;
+            T object;
             try {
                 object = type.newInstance();
             } catch (Exception ex) {
@@ -1093,7 +1098,7 @@ public class ETClient {
             throw new ETSdkException("could not find " + method + " method for type " + type);
         }
 
-        ETResponse<T> response = null;
+        ETResponse<T> response;
         try {
             // first argument of null means method is static
             response = (ETResponse<T>) m.invoke(null, this, objects);

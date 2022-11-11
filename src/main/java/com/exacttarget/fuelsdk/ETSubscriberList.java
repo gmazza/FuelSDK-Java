@@ -5,7 +5,6 @@ import org.apache.cxf.xjc.runtime.JAXBToStringStyle;
 
 import com.exacttarget.fuelsdk.ETSubscriber.Status;
 import com.exacttarget.fuelsdk.annotations.ExternalName;
-import com.exacttarget.fuelsdk.annotations.InternalName;
 import com.exacttarget.fuelsdk.annotations.SoapObject;
 import com.exacttarget.fuelsdk.internal.List;
 import com.exacttarget.fuelsdk.internal.SubscriberList;

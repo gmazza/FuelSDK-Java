@@ -282,21 +282,11 @@ public class ETRestConnection {
                     logger.debug(line);
                 }
             }
-            OutputStream os = null;
-            try {
-                os = connection.getOutputStream();
+            try (OutputStream os = connection.getOutputStream()){
                 os.write(payload.getBytes());
                 os.flush();
             } catch (IOException ex) {
                 throw new ETSdkException("error writing " + url, ex);
-            } finally {
-                if (os != null) {
-                    try {
-                        os.close();
-                    } catch (IOException ex) {
-                        throw new ETSdkException("error closing connection after writing " + url, ex);
-                    }
-                }
             }
         }
 
@@ -326,20 +316,13 @@ public class ETRestConnection {
         }
 
         StringBuilder stringBuilder = new StringBuilder();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        try {
-            String line = null;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))){
+            String line;
             while ((line = reader.readLine()) != null) {
                 stringBuilder.append(line);
             }
         } catch (IOException ex) {
             throw new ETSdkException("error reading " + connection.getURL(), ex);
-        } finally {
-            try {
-                reader.close();
-            } catch (IOException ex) {
-                throw new ETSdkException("error closing " + connection.getURL(), ex);
-            }
         }
 
         String response = stringBuilder.toString();
