@@ -7,15 +7,15 @@ buildscript {
 }
 
 plugins {
-    id "pl.allegro.tech.build.axion-release" version "1.13.14"
-    id "io.mateo.cxf-codegen" version "1.0.0"
-    id 'com.jfrog.artifactory' version '4.27.1'
-    id 'java'
-    id 'maven-publish'
+    id "pl.allegro.tech.build.axion-release" version "1.14.3"
+    id "io.mateo.cxf-codegen" version "1.0.3"
     // JavaCC compiler for script in main/javacc folder
     // https://cs.lmu.edu/~ray/notes/javacc/
     // https://github.com/javacc/javaccPlugin
     id "ca.coglinc.javacc" version "2.4.0"
+    id 'com.jfrog.artifactory' version '4.31.0'
+    id 'java'
+    id 'maven-publish'
 }
 
 scmVersion {
@@ -48,8 +48,8 @@ dependencies {
     implementation "org.apache.cxf:cxf-rt-frontend-jaxws:$cxfVersion"
     implementation "org.apache.cxf:cxf-rt-transports-http:$cxfVersion"
     implementation "org.apache.cxf:cxf-rt-ws-security:$cxfVersion"
-    implementation "org.apache.cxf.xjc-utils:cxf-xjc-runtime:3.3.1"
-    implementation "com.google.code.gson:gson:2.9.0"
+    implementation "org.apache.cxf.xjc-utils:cxf-xjc-runtime:3.3.2"
+    implementation "com.google.code.gson:gson:2.10"
     implementation "org.apache.commons:commons-lang3:3.12.0"
     implementation "org.apache.logging.log4j:log4j-core:$log4jVersion"
     implementation "org.apache.logging.log4j:log4j-1.2-api:$log4jVersion"
@@ -57,18 +57,18 @@ dependencies {
     // Below deps in JDK 8 but not more recent
     implementation "javax.xml.ws:jaxws-api:2.3.1"
     implementation "javax.jws:javax.jws-api:1.1"
-    implementation "com.sun.xml.messaging.saaj:saaj-impl:1.5.1"
+    implementation "com.sun.xml.messaging.saaj:saaj-impl:1.5.3"
 
     testImplementation "junit:junit:4.13.2"
     testImplementation "org.hamcrest:hamcrest-core:2.2"
 
     // during CXF WSDL2Java generation
     // https://ciscoo.github.io/cxf-codegen-gradle/docs/snapshot/user-guide/#logging
-    cxfCodegen "ch.qos.logback:logback-classic:1.2.10"
+    cxfCodegen "ch.qos.logback:logback-classic:1.4.5"
     cxfCodegen "jakarta.xml.ws:jakarta.xml.ws-api:2.3.3"
     cxfCodegen "jakarta.annotation:jakarta.annotation-api:1.3.5"
     // used to generate toString() via -xjc-Xts setting below on created objects
-    cxfCodegen "org.apache.cxf.xjcplugins:cxf-xjc-ts:3.3.1"
+    cxfCodegen "org.apache.cxf.xjcplugins:cxf-xjc-ts:3.3.2"
 }
 
 // Generate Java client stubs and JAXB request/response objects from WSDL.
