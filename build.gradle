@@ -14,7 +14,7 @@ plugins {
     // https://github.com/javacc/javaccPlugin
     id "ca.coglinc.javacc" version "2.4.0"
     id 'com.jfrog.artifactory' version '4.31.0'
-    id 'java'
+    id 'java-library'
     id 'maven-publish'
 }
 
@@ -46,8 +46,9 @@ sourceSets {
 dependencies {
     implementation "commons-beanutils:commons-beanutils:1.9.4"
     implementation "org.apache.cxf:cxf-rt-frontend-jaxws:$cxfVersion"
-    implementation "org.apache.cxf:cxf-rt-transports-http:$cxfVersion"
     implementation "org.apache.cxf:cxf-rt-ws-security:$cxfVersion"
+    // 'api' to allow for downstream usage if needed
+    api "org.apache.cxf:cxf-rt-transports-http:$cxfVersion"
     implementation "org.apache.cxf.xjc-utils:cxf-xjc-runtime:3.3.2"
     implementation "com.google.code.gson:gson:2.10"
     implementation "org.apache.commons:commons-lang3:3.12.0"

@@ -268,4 +268,11 @@ public class ETSoapConnection {
                     + accessToken);
         }
     }
+
+    public void close() {
+        if (soapClient != null) {
+            logger.debug("Closing soap client");
+            soapClient.destroy();
+        }
+    }
 }

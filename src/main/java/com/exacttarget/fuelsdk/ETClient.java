@@ -217,6 +217,12 @@ public class ETClient {
         soapConnection = new ETSoapConnection(this, soapEndpoint, accessToken);
     }
 
+    public void close() {
+        if (soapConnection != null) {
+            soapConnection.close();
+        }
+    }
+
     public static boolean isNullOrBlankOrEmpty(String str) {
         return str == null || StringUtils.isBlank(str) || StringUtils.isEmpty(str);
     }
